@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Uso:
-#   ./run.sh              abre o terminal montando o diretório atual em /work
+#   ./run.sh              abre o terminal montando o diretório atual em /work/<nome-da-pasta>
 #   ./run.sh ~/projetos   abre o terminal montando outro diretório
 #   ./run.sh build        (re)constrói a imagem
 #   ENGINE=podman ./run.sh   força o motor de container
@@ -34,6 +34,7 @@ if [ "${1:-}" = "build" ]; then
 fi
 
 target="$(cd "${1:-$PWD}" && pwd)"
+name="$(basename "$target")"
 
 if ! "$engine" image inspect "$IMAGE" >/dev/null 2>&1; then
   build
@@ -51,6 +52,7 @@ exec "$engine" run --rm -it \
   -e TERM \
   -e COLORTERM=truecolor \
   -v "$VOLUME":/home/dev/.local/share \
-  -v "$target":/work \
-  -w /work \
+  -v "$target":"/work/$name" \
+  -w "/work/$name" \
   "$IMAGE"
+  

@@ -27,7 +27,7 @@ Para os ícones do eza e do starship aparecerem, o terminal do seu host precisa 
 ## Instalação
 
 ```bash
-git clone <url-deste-repositorio> fish-container
+git clone https://github.com/jonatas-melo-silva/fish-container.git
 cd fish-container
 chmod +x run.sh
 ./run.sh build
@@ -124,3 +124,7 @@ Erro de permissão em arquivos da pasta montada: reconstrua a imagem com `./run.
 Em Fedora ou outras distros com SELinux, o script já passa `--security-opt label=disable` para o container conseguir ler a pasta montada sem precisar reetiquetá-la.
 
 Comando `bat` ou `fd` não encontrado: no Debian eles se chamam `batcat` e `fdfind`. A imagem já cria os links `bat` e `fd`, então o problema só aparece se você trocar a imagem base.
+
+## Licença
+
+MIT. Veja o arquivo [LICENSE](LICENSE).
