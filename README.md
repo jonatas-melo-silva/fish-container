@@ -29,17 +29,14 @@ Para os ícones do eza e do starship aparecerem, o terminal do seu host precisa 
 ```bash
 git clone https://github.com/jonatas-melo-silva/fish-container.git
 cd fish-container
-chmod +x run.sh
 ./run.sh build
 ```
-
-O `chmod +x` só é necessário se o script veio de um zip ou perdeu a permissão de execução. Sem ele, o shell responde "permissão negada".
 
 O `build` usa o seu UID e GID como dono do usuário dentro do container, para que os arquivos criados na pasta montada pertençam a você no host.
 
 ## Uso
 
-Abra o terminal montando o diretório atual em `/work`:
+Abra o terminal montando o diretório atual em `/work/<nome-da-pasta>`, onde `<nome-da-pasta>` é o nome da pasta em que você está:
 
 ```bash
 ./run.sh
@@ -51,7 +48,7 @@ Ou monte outra pasta, por exemplo a dos seus projetos:
 ./run.sh ~/projetos
 ```
 
-A pasta montada em `/work` é a pasta real do host: o que você criar, editar ou apagar lá dentro vale fora do container também. O resto do sistema de arquivos do container é descartado ao sair.
+A pasta montada em `/work/<nome-da-pasta>` é a pasta real do host: o que você criar, editar ou apagar lá dentro vale fora do container também. O resto do sistema de arquivos do container é descartado ao sair.
 
 O script usa o Podman se ele existir e cai para o Docker caso contrário. Para escolher um deles:
 
@@ -79,16 +76,18 @@ Docker:
 
 ```bash
 docker build --build-arg USER_UID=$(id -u) --build-arg USER_GID=$(id -g) -t fish-container .
+name="$(basename "$PWD")"
 docker run --rm -it --security-opt label=disable -e TERM -e COLORTERM=truecolor \
-  -v fish-container-data:/home/dev/.local/share -v "$PWD":/work -w /work fish-container
+  -v fish-container-data:/home/dev/.local/share -v "$PWD":"/work/$name" -w "/work/$name" fish-container
 ```
 
 Podman:
 
 ```bash
 podman build --build-arg USER_UID=$(id -u) --build-arg USER_GID=$(id -g) -t fish-container .
+name="$(basename "$PWD")"
 podman run --rm -it --userns=keep-id --security-opt label=disable -e TERM -e COLORTERM=truecolor \
-  -v fish-container-data:/home/dev/.local/share -v "$PWD":/work -w /work fish-container
+  -v fish-container-data:/home/dev/.local/share -v "$PWD":"/work/$name" -w "/work/$name" fish-container
 ```
 
 ## Persistência
@@ -121,7 +120,7 @@ Para adicionar um pacote, inclua o nome na lista do `apt-get install` no `Docker
 
 Erro de permissão em arquivos da pasta montada: reconstrua a imagem com `./run.sh build` na mesma conta de usuário que vai usá-la, porque o UID é fixado no build.
 
-Em Fedora ou outras distros com SELinux, o script já passa `--security-opt label=disable` para o container conseguir ler a pasta montada sem precisar reetiquetá-la.
+Em Fedora ou outras distros com SELinux, o script já passa `--security-opt label=disable` para o container conseguir ler a pasta montada sem precisar reetiquetá-la. Isso desliga a separação do SELinux só para esse container. Num shell de uso pessoal a troca é aceitável, mas vale saber que ela existe.
 
 Comando `bat` ou `fd` não encontrado: no Debian eles se chamam `batcat` e `fdfind`. A imagem já cria os links `bat` e `fd`, então o problema só aparece se você trocar a imagem base.
 
