@@ -1,0 +1,2 @@
+# Não pula uma linha em branco entre um comando e outro
+add_newline = false
